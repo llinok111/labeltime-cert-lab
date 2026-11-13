@@ -1,0 +1,42 @@
+{
+  "scenario": "scene-a-crossing (12 labels, 57 conflicting pairs)",
+  "info": {
+    "labels": 12,
+    "conflictingPairs": 57,
+    "initialContinuousMeasure": 24.197975656064234
+  },
+  "profile": {
+    "minMs": 0.004,
+    "medianMs": 0.0041,
+    "p95Ms": 0.005,
+    "stddevMs": 0.0002,
+    "coldMs": 0.0082,
+    "samples": 15
+  },
+  "repair": {
+    "minMs": 0.0455,
+    "medianMs": 0.0463,
+    "p95Ms": 0.05,
+    "stddevMs": 0.0011,
+    "coldMs": 0.052,
+    "samples": 15
+  },
+  "singlePairInterval": {
+    "minMs": 0.0005,
+    "medianMs": 0.0005,
+    "p95Ms": 0.0005,
+    "stddevMs": 0,
+    "coldMs": 0.0005,
+    "samples": 15
+  },
+  "singlePairIntervalMs": 0.000505,
+  "oracle_2000samps": {
+    "minMs": 0.0045,
+    "medianMs": 0.0045,
+    "p95Ms": 0.0051,
+    "stddevMs": 0.0002,
+    "coldMs": 0,
+    "samples": 15
+  },
+  "unit": "ms (singlePairInterval oracle/single are per-call)"
+}

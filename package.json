@@ -1,0 +1,14 @@
+{
+  "name": "labeltime-cert-lab",
+  "version": "1.0.0",
+  "description": "Continuous-time label clearance certificate: exact closed-form overlap intervals over t in [0,1], plus a monotone minimal repair — node-verifiable, browser-shared core.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "gen": "node tools/gen-sample.mjs",
+    "verify": "node bench/verify.mjs",
+    "bench": "node bench/bench.mjs",
+    "serve": "python3 -m http.server 4173"
+  },
+  "license": "MIT"
+}

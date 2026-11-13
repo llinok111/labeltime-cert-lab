@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>labeltime-cert-lab — continuous-time label clearance certificate</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0b0f14; color: #e6edf3; overflow: hidden;
+  }
+  #hud {
+    position: fixed; top: 12px; left: 12px; z-index: 10; max-width: 430px;
+    background: rgba(13, 20, 28, 0.86); border: 1px solid #2a3644; border-radius: 10px;
+    padding: 12px 14px; font-size: 12.5px; line-height: 1.5; backdrop-filter: blur(6px);
+  }
+  #hud h1 { font-size: 14px; margin: 0 0 6px; letter-spacing: .2px; }
+  #hud .muted { color: #8b98a5; }
+  #hud .num { font-variant-numeric: tabular-nums; color: #7ee787; font-weight: 600; }
+  #hud .bad { color: #ff7b72; }
+  #controls {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 10px; align-items: center; background: rgba(13,20,28,.9);
+    border: 1px solid #2a3644; border-radius: 10px; padding: 10px 14px;
+  }
+  #controls button {
+    background: #21262d; color: #e6edf3; border: 1px solid #30363d; border-radius: 7px;
+    padding: 6px 12px; font-size: 12.5px; cursor: pointer;
+  }
+  #controls button:hover { background: #30363d; }
+  #controls input[type=range] { width: 240px; }
+  #timeline {
+    position: fixed; bottom: 74px; left: 50%; transform: translateX(-50%); z-index: 10;
+    width: min(560px, 86vw); height: 18px; border: 1px solid #2a3644; border-radius: 5px;
+    overflow: hidden; background: #0d141c; display: flex;
+  }
+  #timeline .seg { height: 100%; }
+  #timeline .ok { background: #1f6f3f; }
+  #timeline .bad { background: #a4272a; }
+  #legend { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #8b98a5; z-index: 10; }
+  #legend .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin: 0 4px 0 12px; vertical-align: -1px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="hud">
+    <h1>Continuous-time label clearance certificate</h1>
+    <div class="muted">12 moving labels · exact closed-form overlap intervals (no frame sampling)</div>
+    <div id="stats" style="margin-top:8px"></div>
+    <div class="muted" style="margin-top:6px">Drag the slider or press Play. Red band = conflict over continuous <em>t</em>; the numeric measure is computed by <code>src/core.mjs</code>, the same module node runs.</div>
+  </div>
+
+  <div id="timeline" title="green = clear, red = conflict along t"></div>
+  <div id="legend"><span class="sw ok"></span>clear<span class="sw bad"></span>conflict</div>
+
+  <div id="controls">
+    <button id="playBtn">Pause</button>
+    <input id="tRange" type="range" min="0" max="1000" value="0" />
+    <button id="repairBtn">Repair (monotone +y)</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
