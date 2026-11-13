@@ -27,7 +27,7 @@ Browser and node share the **same** `src/core.mjs`; the page's timeline and "con
 
 ## Evidence (from `bench/result.json`, real run)
 
-> Timing values below are copied verbatim from the committed `bench/result.json`; re-running `bench/bench.mjs` rewrites that file and absolute numbers will drift slightly.
+> Timing values below are **rounded** from the committed `bench/result.json` (4 dp for ms, 6 dp for the per-decision row); re-running `bench/bench.mjs` rewrites that file and absolute numbers will drift slightly.
 
 Scenario: `scene-a-crossing` — 12 labels, **57 conflicting pairs**, initial continuous overlap measure **24.1980** (in units of `t`).
 
