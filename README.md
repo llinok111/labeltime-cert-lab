@@ -40,7 +40,7 @@ Scenario: `scene-a-crossing` — 12 labels, **57 conflicting pairs**, initial co
 `verify.mjs` prints the asserted values, including:
 - **3/3 scenes** where the closed-form interval and the dense sampler disagree on **0 pairs** (0/66, 0/28, 0/36).
 - **3/3 scenes** where the continuous measure drops to **exactly 0** after repair, and post-repair dense sampling finds **0** positive analytic intervals.
-- **5 scales** (1e-6 … 1e6): identical conflicting-pair counts and repair resolved at every scale; normalized displacement drift ≤ 6e-15.
+- **5 scales** (1e-6 … 1e6): identical conflicting-pair counts and repair resolved at every scale; normalized displacement drift ≤ 1e-12.
 - Scale-invariance of the repair uses a **dimensionless** `k`; no absolute `EPS` appears in any geometry predicate — all tolerances are `REL_EPS × bbox-diagonal`.
 
 ## 本轮创新
