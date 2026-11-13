@@ -39,12 +39,9 @@ for (const f of sceneFiles) {
     for (let j = i + 1; j < scene.labels.length; j++) {
       nPairs++;
       const I = core.pairOverlapInterval(scene, i, j);
-      let samCount = 0;
-      for (let s = 0; s < NSAMP; s++) {
-        const t = s / (NSAMP - 1);
-        if (core.overlapAt(scene, i, j, t) === 1) samCount++;
-      }
-      const sampledFrac = samCount / NSAMP;
+      // ACTUALLY call the independent oracle (previous version used core.overlapAt,
+      // which shares code with the analytic path — a real harness confound).
+      const sampledFrac = sampledOverlapFraction(scene, i, j, NSAMP);
       const intervalMeasure = I ? I.hi - I.lo : 0;
       if (Math.abs(sampledFrac - intervalMeasure) > 2 / NSAMP + 0.001) {
         breaches++;

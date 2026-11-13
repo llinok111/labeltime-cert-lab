@@ -33,9 +33,9 @@ Scenario: `scene-a-crossing` — 12 labels, **57 conflicting pairs**, initial co
 
 | measurement | median | cold | p95 | rel-stddev |
 |---|---|---|---|---|
-| `clearanceProfile` (full cert) | 0.0041 ms | 0.0082 ms | 0.0050 ms | 4.9% |
-| `minRepair` (resolve to 0) | 0.0463 ms | 0.0520 ms | 0.0500 ms | 2.4% |
-| `pairOverlapInterval` (one decision) | 0.000505 ms | — | — | 0.0% |
+| `clearanceProfile` (full cert) | 0.0033 ms | 0.0073 ms | 0.0042 ms | 6.9% |
+| `minRepair` (resolve to 0) | 0.0456 ms | 0.0508 ms | 0.0533 ms | 4.3% |
+| `pairOverlapInterval` (one decision) | 0.000034 ms | — | — | 0.0% |
 
 `verify.mjs` prints the asserted values, including:
 - **3/3 scenes** where the closed-form interval and the dense sampler disagree on **0 pairs** (0/66, 0/28, 0/36).

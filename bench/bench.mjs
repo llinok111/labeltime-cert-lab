@@ -77,10 +77,10 @@ const oracleBench = measureBatch(() => sampledOverlapFraction(dense, 0, 1, 2000)
 
 function fmt(r) {
   return {
-    minMs: +r.min.toFixed(4),
-    medianMs: +r.median.toFixed(4),
-    p95Ms: +r.p95.toFixed(4),
-    stddevMs: +r.stddev.toFixed(4),
+    minMs: +r.min.toFixed(6),
+    medianMs: +r.median.toFixed(6),
+    p95Ms: +r.p95.toFixed(6),
+    stddevMs: +r.stddev.toFixed(6),
     coldMs: +(r.coldMs ?? 0).toFixed(4),
     samples: r.samples,
   };

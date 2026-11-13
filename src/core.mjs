@@ -52,32 +52,34 @@ export function centersAt(scene, t) {
 }
 
 // overlap indicator between labels i,j at parameter t (1 overlap, 0 clear).
-export function overlapAt(scene, i, j, t, eps) {
+export function overlapAt(scene, i, j, t) {
   const Ci = centersAt(scene, t)[i];
   const Cj = centersAt(scene, t)[j];
   const L = scene.labels;
   const hx = L[i].hx + L[j].hx;
   const hy = L[i].hy + L[j].hy;
-  const e = eps == null ? REL_EPS * sceneDiag(scene) : eps;
   const dx = Math.abs(Ci.x - Cj.x);
   const dy = Math.abs(Ci.y - Cj.y);
-  return dx <= hx + e && dy <= hy + e ? 1 : 0;
+  // strict: exact tangency is measure-zero, NOT a violation. This predicate is
+  // deliberately EPS-free so it agrees bit-for-bit with the closed-form interval
+  // (an eps band here made analytic and sampling disagree by O(1) in time).
+  return dx < hx && dy < hy ? 1 : 0;
 }
 
 // ---- closed-form continuous interval ----------------------------------------
 
 // Interval of t in [0,1] on which |d0 + d1*t| <= S. Returns {lo,hi} or null.
 // eps is an absolute-length tolerance (already scaled by the scene diagonal).
-export function linAbsInterval(d0, d1, S, eps) {
-  if (S < 0) return null;
-  const slop = eps == null ? 0 : eps;
-  if (Math.abs(d1) < slop) return Math.abs(d0) <= S + slop ? { lo: 0, hi: 1 } : null;
-  const r1 = (-(S) - d0) / d1;
+export function linAbsInterval(d0, d1, S) {
+  if (S <= 0) return null;
+  if (d1 === 0) return Math.abs(d0) < S ? { lo: 0, hi: 1 } : null;
+  const r1 = (-S - d0) / d1;
   const r2 = (S - d0) / d1;
   const a = Math.min(r1, r2), b = Math.max(r1, r2);
   const lo = Math.max(0, a);
   const hi = Math.min(1, b);
-  if (hi > lo) return { lo: Math.max(lo, 0), hi: Math.min(hi, 1) };
+  // strict interval: hi > lo required; an exact tangency (hi === lo) is null.
+  if (hi > lo) return { lo, hi };
   return null;
 }
 
@@ -90,15 +92,14 @@ function clipInt(I) {
 
 // Exact continuous overlap interval [lo,hi] for a single pair, or null when the
 // two moving rects never overlap over t in [0,1].
-export function pairOverlapInterval(scene, i, j, eps) {
-  const e = eps == null ? REL_EPS * sceneDiag(scene) : eps;
+export function pairOverlapInterval(scene, i, j) {
   const Li = scene.labels[i], Lj = scene.labels[j];
   const dx0 = Li.x0 - Lj.x0, dx1 = (Li.x1 - Li.x0) - (Lj.x1 - Lj.x0);
   const dy0 = Li.y0 - Lj.y0, dy1 = (Li.y1 - Li.y0) - (Lj.y1 - Lj.y0);
   const Sx = Li.hx + Lj.hx;
   const Sy = Li.hy + Lj.hy;
-  const X = linAbsInterval(dx0, dx1, Sx, e);
-  const Y = linAbsInterval(dy0, dy1, Sy, e);
+  const X = linAbsInterval(dx0, dx1, Sx);
+  const Y = linAbsInterval(dy0, dy1, Sy);
   if (!X || !Y) return null;
   const lo = Math.max(X.lo, Y.lo);
   const hi = Math.min(X.hi, Y.hi);
@@ -151,8 +152,6 @@ export function clearanceProfile(scene, eps) {
 export function minRepair(scene) {
   const labels = scene.labels.map((L) => ({ ...L }));
   const work = { labels };
-  const diag = sceneDiag(scene);
-  const e = REL_EPS * diag;
   const moved = new Array(labels.length).fill(null);
   const addMove = (k, dx, dy) => {
     if (dx || dy) {
@@ -161,14 +160,16 @@ export function minRepair(scene) {
     }
   };
 
-  let profile = clearanceProfile(work, e);
+  let profile = clearanceProfile(work);
   let sweeps = 0;
   const MAX_SWEEPS = 400;
   while (profile.conflict && sweeps < MAX_SWEEPS) {
+    // recompute relative epsilon from the CURRENT scene extents (the scene grows
+    // as we push, so a stale eps is how the old version self-reported a false 0)
+    const e = REL_EPS * sceneDiag(work);
     let anyChange = false;
-    // process each currently-conflicting pair
     for (const p of profile.pairs) {
-      const I = pairOverlapInterval(work, p.i, p.j, e);
+      const I = pairOverlapInterval(work, p.i, p.j);
       if (!I) continue;
       const Li = work.labels[p.i], Lj = work.labels[p.j];
       const Sy = Li.hy + Lj.hy;
@@ -178,8 +179,8 @@ export function minRepair(scene) {
       const ya = baseY + vy * I.lo, yb = baseY + vy * I.hi;
       const DminY = Math.min(ya, yb);
       // push label j up so min separation clears Sy (only upward, monotone)
-      if (DminY < Sy) {
-        const push = Sy - DminY + 2 * e;
+      if (DminY < Sy + e) {
+        const push = Sy + 2 * e - DminY;
         work.labels[p.j].y0 += push;
         work.labels[p.j].y1 += push;
         addMove(p.j, 0, push);
@@ -187,16 +188,18 @@ export function minRepair(scene) {
       }
     }
     if (!anyChange) break; // no progress possible with only-up moves
-    profile = clearanceProfile(work, e);
+    profile = clearanceProfile(work);
     sweeps++;
   }
+  // final FRESH re-certification (must use the final scene, not a stale eps)
+  const finalProfile = clearanceProfile(work);
 
   const displacement = moved.reduce((s, m) => s + (m ? Math.hypot(m.dx, m.dy) : 0), 0);
   return {
     scene: work,
-    resolved: !profile.conflict,
+    resolved: !finalProfile.conflict,
     sweeps,
-    totalMeasureAfter: profile.totalMeasure,
+    totalMeasureAfter: finalProfile.totalMeasure,
     moved,
     displacement,
   };
